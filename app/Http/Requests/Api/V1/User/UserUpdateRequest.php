@@ -1,17 +1,18 @@
 <?php
 
-namespace App\Http\Requests\Api\V1\Auth;
+namespace App\Http\Requests\Api\V1\User;
+
 
 use App\Http\Requests\Api\FormRequest;
 
-class RegisterRequest extends FormRequest
+class UserUpdateRequest extends FormRequest
 {
     public function rules(): array
     {
         return [
             'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8|max:255',
+            'phone' => 'string|nullable',
+            'city_id' => 'int|nullable',
         ];
     }
 

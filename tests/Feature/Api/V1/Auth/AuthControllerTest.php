@@ -2,17 +2,14 @@
 
 namespace Tests\Feature\Api\V1\Auth;
 
-use App\Http\Resources\Api\V1\Auth\UserResource;
+use App\Http\Resources\Api\V1\UserResource;
 use App\Models\City;
 use App\Models\User;
 use Hash;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class AuthControllerTest extends TestCase
 {
-    use RefreshDatabase;
-
     private const PASSWORD = 'password';
 
     public function testLogin(): void
@@ -30,9 +27,7 @@ class AuthControllerTest extends TestCase
         $response->assertOk();
 
         $responseData = $response->json()['data'];
-        $this->assertArrayHasKey('auth_token', $responseData);
         $this->assertIsString($responseData['auth_token']);
-        $this->assertArrayHasKey('user', $responseData);
         $this->assertSame($responseData['user'], (new UserResource($user))->toArray(null));
     }
 
@@ -53,21 +48,18 @@ class AuthControllerTest extends TestCase
 
         $responseData = $response->json()['data'];
 
-        $this->assertArrayHasKey('auth_token', $responseData);
         $this->assertIsString($responseData['auth_token']);
-        $this->assertArrayHasKey('user', $responseData);
         $this->assertSame($responseData['user'], (new UserResource($registeredUser))->toArray(null));
     }
 
     public function testAuthByToken(): void
     {
         $city = City::factory()->createOne();
-        $user = User::factory()->createOne([
+
+        [$user, $token] = $this->auth([
             'password' => Hash::make(self::PASSWORD),
             'city_id' => $city->id,
         ]);
-
-        $token = $user->createToken('auth_token')->plainTextToken;
 
         $response = $this->post('/api/v1/auth-by-token', [
             'auth_token' => $token,
@@ -75,16 +67,13 @@ class AuthControllerTest extends TestCase
         $response->assertOk();
 
         $responseData = $response->json()['data'];
-        $this->assertArrayHasKey('auth_token', $responseData);
         $this->assertIsString($responseData['auth_token']);
-        $this->assertArrayHasKey('user', $responseData);
         $this->assertSame($responseData['user'], (new UserResource($user))->toArray(null));
     }
 
     public function testLogout(): void
     {
-        $user = User::factory()->createOne();
-        $token = $user->createToken('auth_token')->plainTextToken;
+        [$user, $token] = $this->auth();
 
         $response = $this->post('/api/v1/logout', [], [
             'Authorization' => $token,
@@ -96,9 +85,10 @@ class AuthControllerTest extends TestCase
 
     public function testLogoutAll(): void
     {
-        $user = User::factory()->createOne();
+        [$user, $token] = $this->auth();
+
         $tokens = [
-            $user->createToken('auth_token')->plainTextToken,
+            $token,
             $user->createToken('auth_token')->plainTextToken,
             $user->createToken('auth_token')->plainTextToken,
         ];

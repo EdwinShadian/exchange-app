@@ -7,10 +7,12 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\V1\Auth\AuthByTokenRequest;
 use App\Http\Requests\Api\V1\Auth\LoginRequest;
 use App\Http\Requests\Api\V1\Auth\RegisterRequest;
-use App\Http\Resources\Api\V1\Auth\UserResource;
+use App\Http\Resources\Api\V1\UserResource;
 use App\Http\Responses\Api\V1\ApiResponse;
 use App\Models\User;
+use App\Services\UserService;
 use Auth;
+use Hash;
 use Illuminate\Http\Request;
 use Laravel\Sanctum\PersonalAccessToken;
 
@@ -41,7 +43,7 @@ class AuthController extends Controller
         $user = new User();
         $user->name = $data['name'];
         $user->email = $data['email'];
-        $user->password = bcrypt($data['password']);
+        $user->password = Hash::make($data['password']);
         $user->save();
 
         $token = $user->createToken('auth_token')->plainTextToken;
@@ -83,13 +85,11 @@ class AuthController extends Controller
         return ApiResponse::json([], 204);
     }
 
-    public function logoutAll()
+    public function logoutAll(UserService $userService)
     {
         $user = Auth::user();
 
-        foreach ($user->tokens as $token) {
-            $token->delete();
-        }
+        $userService->retrieveAllTokens($user);
 
         return ApiResponse::json([], 204);
     }

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Traits\ResetPassword;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -12,6 +13,7 @@ use Laravel\Sanctum\HasApiTokens;
 class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
+    use ResetPassword;
 
     public const TABLE = 'users';
     protected $table = self::TABLE;
