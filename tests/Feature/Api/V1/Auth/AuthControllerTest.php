@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Feature\Api\V1\Auth;
 
 use App\Http\Resources\Api\V1\UserResource;

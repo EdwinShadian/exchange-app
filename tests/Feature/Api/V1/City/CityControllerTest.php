@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Api\V1\City;
 
 use App\Models\City;
@@ -9,6 +11,7 @@ use Tests\TestCase;
 class CityControllerTest extends TestCase
 {
     private string $token;
+
     private Collection $cities;
 
     protected function setUp(): void
@@ -43,6 +46,7 @@ class CityControllerTest extends TestCase
         $response = $this->get("/api/v1/city?limit=3&q=$searchString", [
             'Authorization' => $this->token,
         ]);
+        $response->assertOk();
 
         $responseData = $response->json()['data'];
 

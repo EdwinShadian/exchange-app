@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Requests\Api\V1\User;
+declare(strict_types=1);
 
+namespace App\Http\Requests\Api\V1\User;
 
 use App\Http\Requests\Api\FormRequest;
 

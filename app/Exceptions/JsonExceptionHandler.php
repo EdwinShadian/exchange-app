@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Exceptions;
 
 use Illuminate\Auth\AuthenticationException;
@@ -27,7 +29,7 @@ class JsonExceptionHandler extends ExceptionHandler
     {
         return response()->json([
             'status' => 401,
-            'message' => 'Unauthenticated',
+            'msg' => 'Unauthenticated',
             'reason' => $exception->getMessage(),
         ], 401);
     }

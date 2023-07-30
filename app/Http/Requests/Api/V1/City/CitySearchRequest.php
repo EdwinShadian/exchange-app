@@ -1,9 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Requests\Api\V1\City;
 
-use App\Models\City;
 use App\Http\Requests\Api\FormRequest;
+use App\Models\City;
 
 class CitySearchRequest extends FormRequest
 {
@@ -22,6 +24,8 @@ class CitySearchRequest extends FormRequest
 
     public function getLimit(): int
     {
-        return $this->query('limit', City::DEFAULT_LIMIT);
+        $limit = (int) $this->get('limit');
+
+        return $limit > 0 ? $limit : City::DEFAULT_LIMIT;
     }
 }

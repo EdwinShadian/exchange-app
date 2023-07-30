@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests;
 
 use App\Models\User;
@@ -11,6 +13,10 @@ abstract class TestCase extends BaseTestCase
     use CreatesApplication;
     use RefreshDatabase;
 
+    /**
+     * @param array $criteria
+     * @return array
+     */
     protected function auth(array $criteria = []): array
     {
         $user = User::factory()->createOne($criteria);

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Api\V1\City;
 
 use App\Http\Controllers\Controller;
@@ -13,11 +15,7 @@ class CityController extends Controller
     {
         $data = $request->validated();
 
-        $cities = City::search(
-            'name',
-            $data['q'] ?? null,
-            $request->getLimit()
-        );
+        $cities = City::search('name', $data['q'] ?? null, $request->getLimit());
 
         return ApiResponse::json([
             'cities' => $cities,

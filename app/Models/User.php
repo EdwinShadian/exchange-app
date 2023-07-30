@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use App\Models\Traits\ResetPassword;
@@ -16,6 +18,7 @@ class User extends Authenticatable
     use ResetPassword;
 
     public const TABLE = 'users';
+
     protected $table = self::TABLE;
 
     protected $fillable = [
