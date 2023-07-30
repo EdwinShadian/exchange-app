@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models\Traits;
 
 use Carbon\Carbon;
@@ -12,14 +14,17 @@ trait ResetPassword
     {
         $usedPasswords = DB::table('password_resets')
             ->select()
-            ->where([
-                'user_id' => $this->id,
-                'last_password' => Hash::make($newPassword),
-            ])
+            ->where(['user_id' => $this->id])
             ->where('created_at', '>=', Carbon::now()->subDays(30))
             ->get();
 
-        return $usedPasswords->isEmpty();
+        foreach ($usedPasswords as $usedPassword) {
+            if (Hash::check($newPassword, $usedPassword->last_password)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     public function addResetPassword(): void

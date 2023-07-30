@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models\Traits;
 
 use Illuminate\Database\Eloquent\Collection;
@@ -10,12 +12,11 @@ trait Searchable
         string $field,
         ?string $search,
         int $limit
-    ): Collection
-    {
+    ): Collection {
         $query = self::query();
 
-        if (!empty($search)) {
-            $query->where($field, 'like', '%' . $search . '%');
+        if (! empty($search)) {
+            $query->where($field, 'like', '%'.$search.'%');
         }
 
         $query->limit($limit);

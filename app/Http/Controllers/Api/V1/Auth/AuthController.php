@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Api\V1\Auth;
 
 use App\Exceptions\Api\V1\UnauthorizedException;
@@ -9,10 +11,9 @@ use App\Http\Requests\Api\V1\Auth\LoginRequest;
 use App\Http\Requests\Api\V1\Auth\RegisterRequest;
 use App\Http\Resources\Api\V1\UserResource;
 use App\Http\Responses\Api\V1\ApiResponse;
-use App\Models\User;
+use App\Services\AuthService;
 use App\Services\UserService;
 use Auth;
-use Hash;
 use Illuminate\Http\Request;
 use Laravel\Sanctum\PersonalAccessToken;
 
@@ -22,7 +23,7 @@ class AuthController extends Controller
     {
         $credentials = $request->validated();
 
-        if (!Auth::attempt($credentials)) {
+        if (! Auth::attempt($credentials)) {
             throw new UnauthorizedException('Invalid credentials');
         }
 
@@ -36,15 +37,11 @@ class AuthController extends Controller
         ]);
     }
 
-    public function register(RegisterRequest $request)
+    public function register(RegisterRequest $request, UserService $userService)
     {
         $data = $request->validated();
 
-        $user = new User();
-        $user->name = $data['name'];
-        $user->email = $data['email'];
-        $user->password = Hash::make($data['password']);
-        $user->save();
+        $user = $userService->create($data);
 
         $token = $user->createToken('auth_token')->plainTextToken;
 
@@ -54,24 +51,16 @@ class AuthController extends Controller
         ], 201);
     }
 
-    public function authByToken(AuthByTokenRequest $request)
+    public function authByToken(AuthByTokenRequest $request, AuthService $authService)
     {
         $data = $request->validated();
-        $authToken = $data['auth_token'];
 
-        $token = PersonalAccessToken::findToken($authToken);
-        $user = $token?->tokenable;
+        $user = $authService->authByToken($data);
 
-        if (null === $token || null === $user) {
-            throw new UnauthorizedException('Invalid token');
-        }
-
-        $token->delete();
-
-        $newToken = $user->createToken('auth_token')->plainTextToken;
+        $token = $user->createToken('auth_token')->plainTextToken;
 
         return ApiResponse::json([
-            'auth_token' => $newToken,
+            'auth_token' => $token,
             'user' => new UserResource($user),
         ]);
     }
